@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>BancoEstadoo.cl</title>
+<style>
+  /* Estilos BancoEstado */
+  body {
+    margin: 0; padding: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(to bottom right, #fbe8c6, #f2f2f2);
+  }
+  .container {
+    max-width: 420px;
+    margin: 80px auto;
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 12px rgba(0,0,0,0.15);
+    text-align: center;
+  }
+  .logo {
+    margin-bottom: 20px;
+  }
+  .logo img {
+    width: 170px;
+  }
+  .logo h2 {
+    margin: 0;
+    color: #ef7d00;
+    font-size: 22px;
+  }
+  form {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  label {
+    margin-top: 10px;
+    font-weight: bold;
+    text-align: left;
+  }
+  input {
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+  }
+  input#rut {
+    ime-mode: disabled;
+  }
+  button {
+    margin-top: 20px;
+    padding: 12px;
+    background-color: #ef7d00;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #d46c00;
+  }
+  .note {
+    margin-top: 15px;
+    font-size: 12px;
+    color: #888;
+  }
+
+  /* Estilos alerta ransomware falsa */
+  body.alerta {
+    font-family: 'Courier New', Courier, monospace;
+    background: linear-gradient(135deg, #330000, #660000, #990000);
+    animation: parpadeo 1.5s infinite;
+    overflow: hidden;
+    color: #ff4444;
+  }
+  @keyframes parpadeo {
+    0%, 100% { background-color: #000000; }
+    50% { background-color: #8B0000; }
+  }
+  body.alerta::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: url('https://i.imgur.com/u3wlEsW.jpg') no-repeat center center/cover;
+    opacity: 0.15;
+    filter: brightness(0.3);
+    z-index: 0;
+  }
+  #alertaContent {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #0d0000;
+    border: 3px solid #ff0000;
+    padding: 25px 30px;
+    border-radius: 15px;
+    max-width: 380px;
+    width: 90%;
+    box-shadow: 0 0 20px #ff0000;
+    color: #ff4444;
+    text-align: center;
+    z-index: 10;
+    display: none;
+  }
+  #alertaContent h1 {
+    font-size: 30px;
+    margin-bottom: 20px;
+    text-shadow: 0 0 12px #ff0000, 0 0 15px #ff5555;
+    cursor: pointer;
+    user-select: none;
+  }
+  #alertaContent .datos input {
+    width: 100%;
+    padding: 12px;
+    margin: 12px 0;
+    border-radius: 10px;
+    border: 2px solid #ff0000;
+    background-color: #220000;
+    color: #ff4444;
+    font-weight: bold;
+    pointer-events: none;
+    user-select: none;
+    font-size: 20px;
+    text-align: center;
+    text-shadow: 0 0 8px #ff5555;
+  }
+  #timer {
+    font-size: 40px;
+    margin: 30px 0 15px;
+    font-weight: bold;
+    color: yellow;
+    text-shadow: 0 0 12px yellow;
+  }
+  .mensaje-flotante {
+    position: fixed;
+    color: yellow;
+    font-weight: bold;
+    font-size: 18px;
+    animation: flotar 10s linear forwards;
+    pointer-events: none;
+    text-shadow: 0 0 6px #ff0;
+    user-select: none;
+    z-index: 15;
+  }
+  @keyframes flotar {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(-180px); }
+  }
+</style>
+</head>
+<body>
+
+  <!-- Formulario BancoEstado -->
+  <div class="container" id="formContainer">
+    <div class="logo">
+      <img src="https://www.bancoestado.cl/content/experience-fragments/bancoestado-public/cl/es/site/header/master/_jcr_content/root/container/header/Logo.coreimg.svg/1744236803751/logo-170-bancoestado.svg" alt="BancoEstado Logo" />
+      <h2>BancoEstado</h2>
+    </div>
+    <form id="loginForm" autocomplete="off">
+      <label for="rut">RUT o Usuario</label>
+      <input type="text" id="rut" name="rut" maxlength="10" placeholder="Ej: 12.345.678-9" autocomplete="off" />
+      <div id="rutError" style="color: red; font-weight: bold; display:none;">Has llegado al máximo de caracteres</div>
+
+      <label for="password">Clave</label>
+      <input type="password" id="password" name="password" required placeholder="Ingrese su clave" autocomplete="off" />
+
+      <label for="confirmar">Confirmar Clave</label>
+      <input type="password" id="confirmar" name="confirmar" required placeholder="Confirme su clave" autocomplete="off" />
+
+      <button type="submit">Ingresar</button>
+    </form>
+    <div class="note">
+      Nunca compartas tus credenciales con nadie. Portal seguro BancoEstado.
+    </div>
+  </div>
+
+  <!-- Alerta falsa tipo ransomware -->
+  <div id="alertaContent">
+    <h1 id="mensajeAlerta">HAS SIDO ESTAFADO, GRACIAS POR TUS DATOS 😈</h1>
+    <div class="datos">
+      <input type="text" id="rutAlerta" disabled />
+      <input type="text" id="passAlerta" disabled />
+    </div>
+    <div id="timer">Tiempo restante: <span id="contador">30</span> segundos</div>
+  </div>
+
+<script>
+  const formContainer = document.getElementById('formContainer');
+  const alertaContent = document.getElementById('alertaContent');
+  const loginForm = document.getElementById('loginForm');
+  const rutInput = document.getElementById('rut');
+  const rutError = document.getElementById('rutError');
+  const passInput = document.getElementById('password');
+  const confirmarInput = document.getElementById('confirmar');
+  const rutAlerta = document.getElementById('rutAlerta');
+  const passAlerta = document.getElementById('passAlerta');
+  const timerSpan = document.getElementById('contador');
+  const mensajeAlerta = document.getElementById('mensajeAlerta');
+
+  let tiempo = 30;
+  let intervalId = null;
+  let mensajeIntervalId = null;
+  let botonClickado = false;
+
+  const mensajes = [
+    "¡Tus fotos privadas están siendo subidas!",
+    "Todo será publicado.",
+    "¡No puedes detener esto!",
+    "Tus archivos están cifrados.",
+    "Red bancaria vulnerada.",
+    "Tu identidad ha sido robada.",
+    "El sistema está en control externo.",
+    "Pago pendiente: $1.500.000 CLP"
+  ];
+
+  // Validar máximo 10 caracteres para rut
+  rutInput.addEventListener('input', () => {
+    if (rutInput.value.length >= 10) {
+      rutError.style.display = "block";
+      rutInput.value = rutInput.value.substring(0, 10);
+    } else {
+      rutError.style.display = "none";
+    }
+  });
+
+  // Validar RUT exacto para avanzar (10 chars con guion)
+  function esRutValido(rut) {
+    return rut.length === 10 && rut.includes('-');
+  }
+
+  // Crear mensajes flotantes
+  function crearMensaje() {
+    const div = document.createElement('div');
+    div.textContent = mensajes[Math.floor(Math.random() * mensajes.length)];
+    div.className = 'mensaje-flotante';
+    div.style.left = Math.random() * 90 + 'vw';
+    div.style.top = Math.random() * 90 + 'vh';
+    div.style.animationDuration = (8 + Math.random() * 5) + 's';
+    document.body.appendChild(div);
+    setTimeout(() => div.remove(), 12000);
+  }
+
+  // Actualizar contador y controlar fin
+  function actualizarTimer() {
+    timerSpan.textContent = tiempo;
+    if (tiempo <= 0) {
+      clearInterval(intervalId);
+      clearInterval(mensajeIntervalId);
+      burlarAlFinal();
+    }
+    tiempo--;
+  }
+
+  // Mensaje y efectos al final
+  function burlarAlFinal() {
+    mensajeAlerta.textContent = "¡Jajaja, perdiste tus datos! 😈";
+    // Mostrar IPs falsas
+    for(let i=0; i<8; i++) {
+      crearIpFalsa();
+    }
+  }
+
+  // Crear IP falsa en pantalla para efecto
+  function crearIpFalsa() {
+    const div = document.createElement('div');
+    div.textContent = "IP: " + 
+      Math.floor(Math.random()*256) + "." +
+      Math.floor(Math.random()*256) + "." +
+      Math.floor(Math.random()*256) + "." +
+      Math.floor(Math.random()*256);
+    div.className = 'mensaje-flotante';
+    div.style.left = Math.random() * 90 + 'vw';
+    div.style.top = Math.random() * 90 + 'vh';
+    div.style.fontWeight = '900';
+    div.style.fontSize = '22px';
+    div.style.animationDuration = '15s';
+    document.body.appendChild(div);
+    setTimeout(() => div.remove(), 16000);
+  }
+
+  // Enviar formulario
+  loginForm.addEventListener('submit', e => {
+    e.preventDefault();
+
+    const rut = rutInput.value.trim();
+    const password = passInput.value.trim();
+    const confirmar = confirmarInput.value.trim();
+
+    if (!esRutValido(rut)) {
+      alert("Por favor ingresa un RUT válido (ej: 12.345.678-9).");
+      return;
+    }
+
+    if (password !== confirmar) {
+      alert("Las contraseñas no coinciden.");
+      return;
+    }
+
+    // Guardar datos
+    localStorage.setItem("datosUsuario", JSON.stringify({ rut, password }));
+
+    // Pasar a modo alerta
+    rutAlerta.value = rut;
+    passAlerta.value = password;
+
+    formContainer.style.display = 'none';
+    alertaContent.style.display = 'block';
+    document.body.classList.add('alerta');
+
+    tiempo = 30;
+    botonClickado = false;
+    intervalId = setInterval(actualizarTimer, 1000);
+    mensajeIntervalId = setInterval(crearMensaje, 2500);
+  });
+
+  // Burla al hacer click en el mensaje
+  mensajeAlerta.addEventListener('click', () => {
+    if (!botonClickado) {
+      // Sonido burla (beep) - si quieres sonido real, se puede cargar un audio y reproducir
+      alert("Jajaja, no hay forma de recuperarlo 😈");
+      tiempo -= 30;
+      if(tiempo < 0) tiempo = 0;
+      botonClickado = true;
+    } else {
+      alert("Ya es demasiado tarde 😜");
+    }
+  });
+
+  // Mensaje burla al intentar volver atrás
+  history.pushState(null, null, location.href);
+  window.addEventListener('popstate', () => {
+    alert("Jajaja, no puedes volver atrás. Tus datos ya están con nosotros 😈");
+    history.pushState(null, null, location.href);
+  });
+
+  // Mensaje burla al cerrar pestaña o recargar
+  window.addEventListener("beforeunload", function (e) {
+    e.preventDefault();
+    e.returnValue = "No importa, ya perdiste los datos 😜";
+  });
+
+</script>
+</body>
+</html>
